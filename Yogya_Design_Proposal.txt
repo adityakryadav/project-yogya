@@ -1,0 +1,990 @@
+i 
+ 
+Design Proposal 
+ 
+YOGYA: 
+Intelligent Exam Eligibility & Tracking Platform 
+ 
+Submitted By 
+ 
+Name Roll Number 
+Aditya Kumar Yadav 24293916005 
+Gaurav Yadav 24293916123 
+Hitesh Purohit 24293916083 
+Aman 24293916103 
+ 
+(Semester IV) 
+ 
+ 
+Under the Supervision of 
+ 
+Dr. Sangeeta Yadav 
+(Assistant Professor) 
+ 
+Department of Computer Science and Engineering 
+ 
+ 
+NEW DELHI – 110007 
+(2025 – 2026) 
+  
+
+ii 
+ 
+Table of Contents 
+S. No. Section Page No. 
+ Cover Page i 
+ Table of Contents ii 
+1. Problem Statement 
+ 
+1 
+2. Objectives 
+ 
+1 
+3. Target Users & User Personas  
+ 
+2 
+4. Competitive Analysis 
+ 
+4 
+5. Features List 
+ 
+5 
+6. App Flow / User Journey 
+ 
+6 
+7. UI/UX Design - Wireframes & Visual Design 
+ 
+8 
+8. Technical Architecture 
+ 
+13 
+9. Data Design 
+ 
+15 
+10. APIs & Integrations 
+ 
+16 
+11. Development Plan 
+ 
+18 
+12. Deliverables 
+ 
+19 
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+1 
+ 
+1. Problem Statement 
+India hosts one of the largest and most complex competitive examination ecosystems in the 
+world. Millions of aspirants appear each year for examinations conducted by UPSC, SSC, 
+IBPS, RBI, and state -level Public Service Commissions, each carrying distinct e ligibility 
+criteria covering age limits, educational qualifications, social category reservations, 
+permissible attempt counts, and domicile requirements. 
+ 
+Despite this scale, aspirants currently manage eligibility tracking through a fragmented 
+combination of physical marksheets, handwritten notes, bookmarked government websites, 
+and social media groups. No unified platform exists that: 
+● Automatically reads and stores academic credentials from physical documents using 
+on-device OCR. 
+● Applies exact eligibility rules of multiple competitive examinations to a candidate’s 
+profile in real time. 
+● Tracks the number of attempts consumed across examinations from a single interface. 
+● Alerts the candidate to approaching registration deadlines and provides a direct 
+pathway to official portals. 
+● Projects future eligibility windows based on the candidate’s age, category, and 
+academic standing. 
+● sometimes aspirant fill to keep in mind the number of attempts they are left with  
+ 
+The consequence is twofold: aspirants miss registration deadlines due to poor tracking, and 
+they invest preparation time in examinations for which they are ineligible, discovering this 
+only at the point of application rejection. Yogya is designed to elimin ate both failure modes 
+through intelligent automation. 
+2. Objectives 
+2.1 Primary Objectives 
+● Develop a cross -platform mobile application (Android and iOS) using the Flutter 
+framework that serves as an intelligent exam eligibility and attempt -tracking 
+companion for Indian competitive examination aspirants. 
+● Implement an on-device OCR pipeline capable of extracting structured academic data 
+from photographs of 10th Marksheets, 12th Marksheets, and Graduation Degree / 
+CGPA Certificates with a confidence score of 95 % or above. 
+● Build a rule-based Eligibility Engine that evaluates a candidate’s profile against the 
+exact eligibility criteria of multiple major Indian competitive examinations 
+simultaneously and produces a real-time match percentage per exam. 
+2 
+ 
+● Design a personalised Eligibility Timeline that projects the candidate’s valid 
+examination windows chronologically, identifies the nearest deadline, and provides a 
+direct link to the official registration portal. 
+● Provide a secure, privacy -preserving architecture that stores only structured 
+extracted data, purges raw document images immediately after OCR extraction, and 
+encrypts all credentials using hardware-backed storage. 
+ 
+2.2 Secondary Objectives 
+● Surface a contextual ‘Next Steps’ card on eligibility confirmation listing additional 
+documents required by each specific examination with links to the official information 
+source. 
+● Design a comprehensive Profile, Settings, and Help & Support interface allowing 
+aspirants to manage their academic identity, social category, notification preferences, 
+and security settings from one place. 
+● Establish an extensible Clean Architecture that allows new examinations, new 
+eligibility rules, and new document types to be added without rebuilding the core 
+engine. 
+● Deliver a brand-consistent user interface with smooth animations, a persistent bottom 
+navigation paradigm, and a hamburger -triggered side drawer for secondary 
+navigation. 
+3. Target Users & User Personas 
+3.1 Target User Segments 
+Yogya is designed for Indian students and young professionals aged 17 to 35 who are actively 
+preparing for one or more competitive examinations. 
+ 
+Segment Age 
+Range Primary Exams Technical Comfort 
+School Leavers 17–19 yrs NDA, AFCAT (future) Moderate - smartphone-native 
+Graduate 
+Aspirants 21–27 yrs UPSC CSE, SSC CGL, IBPS 
+PO, RBI Grade B, CDS High - frequent app users 
+Multi-Exam 
+Trackers 22–32 yrs UPSC CSE, SSC, IBPS, State 
+PSC High - power users 
+ 
+3.2 User Personas 
+3 
+ 
+Persona 1 - Aditi Sharma (UPSC Primary Aspirant) 
+ 
+● Age: 23 | Location: Delhi | Category: General | Education: B.A. (Hons.) Political 
+Science, University of Delhi. 
+● Goal: Clear UPSC Civil Services Prelims; track remaining attempts and upcoming 
+notification deadlines. 
+● Pain Points: Manually calculating age eligibility against each notification date. 
+Forgetting new UPSC notifications. Unsure whether her 61  % graduation qualifies 
+her for RBI Grade B simultaneously. 
+● How Yogya Helps: The Eligibility Engine auto-calculates her age against each exam’s 
+notification date, shows Attempt #2 of 6 consumed, confirms RBI Grade B eligibility 
+(60 % threshold met), and surfaces the CDS  II registration link 14 days before the 
+deadline. 
+ 
+Persona 2 - Rohan Verma (SSC + Banking Multi-Tracker) 
+ 
+● Age: 26 | Location: Lucknow | Category: OBC | Education: B.Com, Lucknow 
+University. 
+● Goal: Crack SSC CGL or IBPS PO within the next two years, whichever comes first. 
+● Pain Points: Tracking two different exam cycles simultaneously. Not sure if his OBC 
+NCL certificate needs renewal. Missed IBPS Clerk last year due to a missed 
+notification. 
+● How Yogya Helps: Live Eligibility Pulse shows SSC CGL at 92 % match and IBPS PO 
+at 85 % match simultaneously. OBC category entered in Profile automatically applies 
+3-year age relaxation across all calculations. Dashboard flags the next IBPS 
+notification 30 days in advance. 
+ 
+Persona 3 - Arjun Singh (NDA / Defence Aspirant) 
+ 
+● Age: 18 | Location: Chandigarh | Category: General | Education: Class 12 (PCM, 
+78 %). 
+● Goal: Join the Indian Navy through NDA. Currently in Class 12. 
+● Pain Points: Confused about age cutoffs for NDA versus CDS. Unsure whether 78  % 
+PCM qualifies for the Air Force technical stream. 
+● How Yogya Helps: After scanning his 12th Marksheet (PCM stream auto -detected), 
+the engine shows Eligible for NDA Navy/Army, Eligible for NDA Air Force (78  % ≥ 
+60 % threshold), and flags his eligibility window at 18 months remaining. AFCAT is 
+shown as future-eligible after graduation. 
+  
+4 
+ 
+4. Competitive Analysis 
+The table below maps Yogya against existing solutions in the Indian exam preparation and 
+document management space. No direct competitor offers the combination of on-device OCR 
+ingestion, rule-based eligibility checking, and attempt tracking in a single mobile application. 
+ 
+Feature Testbook / 
+Unacademy 
+DigiLocke
+r 
+Spreadsheet
+s Yogya 
+OCR Document 
+Scanning No No No Yes - on-device ML 
+Rule-Based 
+Eligibility Check No No Manual Yes - automated engine 
+Attempt Count 
+Tracking No No Manual Yes - auto from docs 
+Personalised 
+Deadline Alerts General alerts No Manual Yes - per-exam, countdown 
+Registration Portal 
+Links General links No Bookmarks Yes - contextual on eligibility 
+Multiple Exam 
+Tracking Study content Storage 
+only Tedious Yes - core feature 
+Document Security Server upload Govt 
+cloud 
+Unencrypte
+d 
+Hardware-encrypted; images 
+purged 
+Offline Access Partial Yes Yes Yes - cached data 
+Category-Aware 
+Engine No No Manual Yes - Profile screen 
+Future Eligibility 
+Projection No No No Yes - timeline predictions 
+ 
+4.1 Key Differentiators 
+● Only platform combining OCR ingestion + eligibility rule engine + attempt tracking 
+in one mobile application. 
+● On-device processing ensures raw marksheet images are never transmitted to a server 
+- a strong privacy advantage. 
+● Contextual registration links appear at the moment of eligibility confirmation, 
+reducing the steps from ‘found eligible’ to ‘application submitted’. 
+● Social category-aware engine automatically applies category-specific age relaxations 
+and attempt limits without additional user input. 
+  
+5 
+ 
+5. Features List 
+Feature Description Screen Priority 
+Splash Screen 
+Branded cold-start screen with 
+JWT check and conditional 
+routing. 
+Splash P0 - Critical 
+Login Screen 
+Email/password + Google OAuth 
+sign-in with JWT stored in 
+hardware-backed secure storage. 
+Login P0 - Critical 
+10th Marksheet 
+OCR 
+Extracts board, year, aggregate 
+%, date of birth. Min. 95 % 
+confidence required. 
+Documents P0 - Critical 
+12th Marksheet 
+OCR 
+Extracts board, stream, aggregate 
+%. Drives NDA / CDS / AFCAT 
+eligibility. 
+Documents P0 - Critical 
+Graduation CGPA 
+/ Degree OCR 
+Extracts university, CGPA (auto-
+converted via UGC formula), pass 
+year. Drives central govt exam 
+eligibility. 
+Documents P0 - Critical 
+Rule-Based 
+Eligibility Engine 
+Evaluates age, qualification, 
+category, and attempts 
+simultaneously for 10+ exams. 
+Eligibility P0 - Critical 
+Live Eligibility 
+Pulse 
+Real-time match % per exam with 
+colour-coded bars and reason text, 
+updates as user fills the wizard. 
+Eligibility P0 - Critical 
+Eligibility 
+Timeline 
+Chronological exam window view 
+with ELIGIBLE / INELIGIBLE 
+verdict and expand-on-tap detail 
+per node. 
+Timeline P0 - Critical 
+Deadline Alerts 
+Countdown cards for upcoming 
+registration deadlines with HIGH 
+PRIORITY / EXAM DATE 
+badges. 
+Dashboard P0 - Critical 
+Registration Link 
+Surface 
+‘Register Now’ button with official 
+portal link on eligibility 
+confirmation. 
+Dashboard / 
+Timeline P0 - Critical 
+Additional Docs 
+Info Cards 
+Lists required documents + 
+authoritative info links per exam 
+on eligibility confirmation. 
+Dashboard / 
+Docs P0 - Critical 
+Social Category 
+Selection 
+Profile-level General / OBC / SC / 
+ST / EWS selector feeding the 
+eligibility engine. 
+Profile P0 - Critical 
+6 
+ 
+Feature Description Screen Priority 
+Side Drawer 
+Navigation 
+Hamburger-triggered overlay 
+with Home, Eligibility Engine, 
+My Documents, Attempt History. 
+Global P1 - High 
+Attempt History 
+Screen 
+Log of exams attempted, derived 
+from uploaded admit cards and 
+manual entries. 
+Side Drawer P1 - High 
+Future Eligibility 
+Predictions 
+Projects valid attempt windows 
+beyond current year with a 
+downloadable roadmap. 
+Timeline P1 - High 
+Full Eligibility 
+Report 
+Downloadable PDF of eligibility 
+standing across all tracked 
+exams. 
+Eligibility P1 - High 
+Settings Screen 
+Profile info, notifications, security 
+& privacy, dark mode, language 
+preferences. 
+Settings P1 - High 
+Help & Support 
+Screen 
+FAQ browser with search, 
+category cards, and support 
+status banner. 
+Help P2 - Future 
+Push Notifications FCM-based alerts for deadlines 
+and eligibility changes. System P2 - Future 
+Multi-language 
+Support 
+Hindi and regional language UI 
+strings via Flutter l10n. Global P2 - Future 
+6. App Flow / User Journey 
+6.1 First-Time User Journey 
+● User downloads and launches Yogya. Splash Screen checks for a JWT token in secure 
+storage. None found - routes to Login Screen. 
+● User registers via email/password or Google OAuth. JWT issued and stored in the 
+hardware-backed keystore. 
+● Profile Screen opens: user enters Date of Birth, Gender, Social Category, State of 
+Domicile, Educational Status, and Primary Exam Goal. 
+● A ‘Complete Your Profile’ nudge directs the user to the Documents screen to upload 
+their 10th Marksheet (first compulsory document). 
+● User opens the OCR viewfinder, aligns the marksheet within the frame. The 4 -layer 
+pipeline processes the image in real time, showing a progress bar from 0  % to 100 % 
+with step badges. 
+7 
+ 
+● Extracted data is shown for user verification. On confirmation, the raw image is 
+purged from the device. The Eligibility Engine performs a first pass using the now -
+verified date of birth. 
+● User uploads 12th Marksheet and Graduation Certificate through the same OCR flow. 
+With all three core documents verified, the Live Eligibility Pulse shows full match 
+percentages and the Dashboard surfaces the first eligible exam’s registration 
+deadline. 
+ 
+6.2 Returning User Journey (Daily Use) 
+● Splash Screen detects a valid JWT - routes directly to Dashboard. Cold-start under 2 
+seconds. 
+● Dashboard shows current UPSC attempt count (e.g., 3  / 6), nearest deadline with 
+countdown (e.g., ‘CDS II 2024 Application - 12 Days Remaining’), and recent document 
+verification card. 
+● User opens the Eligibility tab, views the Live Eligibility Pulse, and updates CGPA 
+after semester results. The engine recomputes all exam matches in real time. 
+● User opens the Timeline tab. Sees UPSC CSE Prelims (ACTIVE, Eligible, Attempt 
+#2 / 6), AFCAT (Ineligible - age exceeded by 2 months), and CDS II 2024 (Eligible with 
+‘Register Now’ button). 
+● User taps ‘Register Now’ on CDS  II. An ‘Eligible - Next Steps ’ card opens listing 
+required documents (12th certificate, degree certificate, NCC C -certificate if 
+applicable, medical fitness clearance) with links to the official UPSC portal. 
+ 
+6.3 Navigation Flow 
+Entry Point Route Destination 
+Cold start (no session) Splash → Login Login Screen 
+Cold start (active 
+session) 
+Splash → 
+Dashboard Dashboard 
+Bottom Nav - Tab 1 Direct Dashboard 
+Bottom Nav - Tab 2 Direct Eligibility Timeline 
+Bottom Nav - Tab 3 Direct Documents / OCR Scanner 
+Bottom Nav - Tab 4 Direct Profile Screen 
+Hamburger icon Slide-in Side Drawer 
+Drawer - Eligibility 
+Engine Push Rule-Based Eligibility Wizard 
+Drawer - My Documents Push Documents Library View 
+8 
+ 
+Entry Point Route Destination 
+Drawer - Attempt 
+History Push Attempt History Screen 
+Drawer - Settings Push Settings Screen 
+Eligible card - Register 
+Now 
+External / 
+WebView Official Exam Portal 
+Sign Out (Settings) go_router 
+redirect Login Screen 
+7. UI/UX Design - Wireframes & 
+Visual Design 
+7.1 Design Language 
+Token Value Usage 
+Primary Colour #3B5BDB (Indigo) Buttons, active tab, brand wordmark, header 
+gradients 
+Dark Background #1A1A2E Splash gradient bottom, dark motivational cards 
+Surface #FFFFFF Cards, input fields, drawer body 
+Page Background #EEF1F8 Login screen and light page backgrounds 
+Eligible Green #2ECC71 ELIGIBLE badges, verified ticks 
+Ineligible Red #E74C3C INELIGIBLE badges, error chips 
+Partial Amber #F39C12 PARTIAL badges, deadline alert banners, OCR step 
+dots 
+Border Radius 12–24 dp All cards and input fields 
+Elevation 2–4 dp Cards; 0 dp for flat list items 
+ 
+7.2 Screen-by-Screen Visual Design & Wireframes 
+7.2.0 Splash Screen 
+● Full-screen indigo gradient (top: #3B5BDB → bottom: #1A1A2E). 
+9 
+ 
+● ‘Yogya’ wordmark in white extra -
+bold, centred. Tagline ‘The Digital 
+Sanctuary’ in light -weight text 
+below.  
+● Logo appears with 
+ScaleTransition + FadeTransition 
+(800 ms, Curves.easeOutBack). 
+Three dot indicators at the bottom 
+show loading state. 
+● Minimum 2-second display; routes 
+to Login (no session) or Dashboard 
+(active session) on completion. 
+ 
+7.2.1 Login Screen 
+ 
+● Light grey -blue background 
+(#EEF1F8). Centred white card, 
+24 dp rounded corners, soft drop 
+shadow. 
+● ‘Yogya’ is the brand  name in 
+indigo at the top  of the card . 
+‘Welcome back’ in large bold 
+black; subtitle in regular grey. 
+● Email field with mail icon prefix; 
+Password field with lock icon and 
+‘Forgot Password?’ link. 
+● Full-width indigo gradient ‘Sign 
+in →’ button. OR divider. 
+‘Continue with Google’ outlined 
+button. ‘Sign Up’ redirect link. 
+ 
+7.2.2 Dashboard Screen 
+● App bar: ‘Yogya’ in bold with 
+hamburger icon (left) and 
+notification bell (right). 
+● Eligibility Alert Banner: Pastel -
+gold strip - ‘You are eligible for 
+upcoming CDS  II 2024 - Check 
+Details’. 
+● Current Standing Donut Card: 
+White elevated card with a circular arc indicator (e.g., 3 / 6 
+Attempts Left), exam name and category below. 
+Figure 1 Spash Screen 
+Figure 2 Login Screen 
+Figure 3 Dashboard 
+10 
+ 
+● Scan Marksheet CTA: Full -
+width indigo gradient card with 
+scan icon. Tapping opens the 
+OCR viewfinder. 
+● Upcoming Deadlines: Cards 
+with HIGH PRIORITY / EXAM 
+DATE badges and days 
+remaining in large text. 
+● Recent Document Verified card 
+with ‘View Document’ and 
+‘Update Data’ action buttons. 
+● Aspirant Mindset Quote: Dark 
+indigo card with italic 
+motivational quote, refreshes 
+daily. 
+ 
+7.2.3 Side Drawer 
+● Indigo gradient header: user 
+avatar, full name, role tag 
+(UPSC ASPIRANT), batch year. 
+● Navigation items: Home (highlighted), Eligibility Engine 
+(amber dot badge), My Documents, Attempt History. 
+● Support & Account group: Settings, Help & Support. 
+● Partially visible Exam Readiness preview card at the 
+bottom prompts profile completion. 
+ 
+7.2.4 Eligibility Engine Screen 
+ 
+● Page title: ‘Rule -Based Eligibility’ with subtitle 
+describing the precision logic engine. 
+● Step 1 - Personal Identity: Social Category pill buttons 
+(General | OBC | SC | ST), Date of Birth picker with 
+note that age is calculated relative to each exam’s 
+notification date. 
+● Step 2 - Academic Records: Unlocks after Step  1. Fields 
+for 10th  %, 12th  %, graduation CGPA  / %, stream. Pre -
+filled from verified OCR documents where available. 
+● Step 3 - Review & Confirm: Summary of all entered data 
+for confirmation before the engine runs. 
+● Save Draft and Next Phase buttons below the wizard 
+steps. 
+Figure 4 Side Drawer 
+Figure 5 Eligibility Engine Screen 
+11 
+ 
+  
+● Live Eligibility Pulse below: per -
+exam ELIGIBLE   /  PARTIAL  / 
+ INELIGIBLE badges with coloured 
+progress bars and one -line reason 
+text. 
+● Full Eligibility Report download 
+button at the bottom. IBPS PO 
+Deadline milestone banner pinned 
+at the foot of the screen. 
+ 
+7.2.5 Eligibility Timeline Screen 
+ 
+● Page title: ‘Eligibility Timeline’ with 
+profile-personalised subtitle. 
+● Next Deadline Banner (indigo 
+bordered card): deadline name, days 
+remaining, REGISTER NOW 
+button linking to the official portal. 
+● Timeline nodes drawn by the 
+timeline_tile package: UPSC CSE 
+Prelims (ACTIVE, Eligible, Attempt 
+#2 / 6), AFCAT (Ineligible + red 
+reason chip - age limit exceeded), 
+CDS II 2024 (Eligible). 
+● Tapping a node expands it to show 
+Age Limit (current vs. allowed), 
+Qualification (Verified  / Pending), 
+and a View Details link. 
+● Future Eligibility Predictions card 
+with DOWNLOAD ROADMAP 
+action. 
+● Strategic Overview dark card: 
+Current Age, Total Valid Attempts, 
+personalised strategic message. 
+● Age Relief Claims amber -bordered 
+card. Floating + FAB to add a new 
+exam to tracking. 
+ 
+7.2.6 Documents & OCR Scanner 
+Screen 
+● App bar: back arrow, Help (?), and 
+notification bell icons. 
+Figure 6 Eligibility Timeline 
+Screen 
+Figure 7 Documents & OCR 
+Scanner Screen 
+12 
+ 
+ 
+● OCR Viewfinder: Live camera 
+preview with blue corner accents, 
+animated scan line, ‘ALIGN 
+DOCUMENT WITHIN FRAME’ 
+guide badge, and 
+Flash / Shutter / Gallery FABs. 
+● Progress Feedback Card: 
+‘Extracting Marks Data... 
+Processing Layer 2 of 4’, 
+percentage counter (e.g., 68  %), 
+indigo-to-pink gradient bar, 
+processing step badges (Table 
+Detected, Text Alignment...). 
+● Recently Scanned section: 
+PRIMARY RECORD card 
+showing the 12th Grade 
+Marksheet (Aggregate 88.4  %, 
+Confidence 99.2  %), Verify Data 
+button, and Share icon. 
+● Compact list below for other 
+scanned records (e.g., JEE 
+Advanced Rank Card, IELTS 
+Score Certificate). 
+● Missing a document? dark indigo 
+CTA card with ‘Import Files’ 
+button for bulk PDF upload. 
+ 
+7.2.7 Profile Screen 
+● Back arrow with ‘Yogya’ title; avatar initials button (top 
+right). Centred avatar with edit pencil, full name, Aspirant 
+ID. 
+● Basic Information section: Date of Birth (date picker), Gender (dropdown). 
+● Category Selection pill buttons: General | OBC | SC | ST (active state = indigo filled). 
+● Academic Documents section: 10th Marksheet (COMPULSORY badge, ‘Scan with 
+OCR’ + ‘Upload’ buttons), 12th Marksheet (Add), Graduation Certificate (Add). 
+● Check the Eligibility primary action button at the bottom of the screen. 
+ 
+7.2.8 Settings Screen 
+● Back arrow, ‘Settings’ title, ‘Yogya’ brand (top right). 
+● Profile card at top: avatar, name, role (UPSC Aspirant, Delhi IN), PREMIUM 
+MEMBER badge. 
+Figure 8 Profile Screen 
+Figure 9 Settings Screen 
+13 
+ 
+ 
+● Account Management: Profile Information, Notifications, 
+Security & Privacy (each with a chevron arrow). 
+● App Preferences: App Language (dropdown, default 
+English UK), Dark Mode (toggle, follows system). 
+● Legal & Support: Privacy Policy, Terms of Service, Help 
+Center & FAQ. 
+● Red-tinted Sign Out button. Version string (VERSION 
+2.4.1 SCHOLAR PULSE) displayed below. 
+ 
+7.2.9 Help & Support Screen (Future Implementation) 
+ 
+● App bar: back arrow, ‘Help & Support’ title, ‘Yogya’ brand. 
+● Header banner (indigo rounded card): ‘How can we help?’ 
+title, subtitle, white ‘Search FAQs...’ search bar. 
+● Browse Categories section with ‘SELECTED TOPICS’ 
+label. 
+◦ Exam Eligibility - ESSENTIAL badge; sub-topics: Age 
+Criteria, Syllabus. 
+◦ Account Help - sub-topics: Passwords, Security, Profile. 
+◦ OCR Troubleshooting - sub-topics: Document Scan, 
+Photo ID. 
+◦ Documents & Certificates - sub-topics: Upload, Verify, 
+Store. 
+● SUPPORT STATUS: HIGH VOLUME amber banner at 
+bottom with animated pulse dots. 
+ 
+8. Technical Architecture 
+8.1 Clean Architecture Layers 
+Layer Responsibility Key Contents 
+Presentation 
+UI rendering, state 
+observation, user 
+interaction. 
+Flutter Widgets, Riverpod Providers, go_router 
+routes, Screen files. 
+Domain 
+Business rules and 
+eligibility logic. Zero 
+Flutter dependency. 
+EligibilityEngine, UseCases (ScanDocument, 
+CheckEligibility), Entity models. 
+Figure 10  Help & Support Screen 
+14 
+ 
+Layer Responsibility Key Contents 
+Data 
+API communication, 
+local DB, OCR, secure 
+storage. 
+Dio HTTP client, Hive / Isar local DB, ML 
+Kit / TFLite OCR, flutter_secure_storage. 
+ 
+8.2 State Management - Riverpod 3.0 
+State Domain Provider Type Description 
+Authentication 
+(JWT) 
+StateNotifierProvi
+der 
+Manages login / logout state; persists token via 
+flutter_secure_storage. 
+Camera / Flash StateNotifierProvi
+der 
+Flash ON / OFF, front / back toggle for the OCR 
+viewfinder. 
+OCR Progress AsyncNotifier Yields continuous % updates (0→100) driving 
+animated progress bars without full rebuilds. 
+Eligibility Engine EligibilityNotifier Recomputes match % for all tracked exams on every 
+profile or document change. 
+Document Library FutureProvider Fetches and caches scanned document records from 
+local DB + remote API. 
+Timeline Events FutureProvider Fetches and caches exam timeline data; supports 
+offline display. 
+Profile / Category StateNotifierProvi
+der 
+Manages social category selection; propagates to 
+EligibilityNotifier on every change. 
+ 
+8.3 OCR Pipeline - 4 Layers 
+● Layer 1 - Image Pre -processing: Perspective correction, deskewing, contrast 
+enhancement, and noise reduction using OpenCV bindings or Flutter’s image 
+package. 
+● Layer 2 - Layout Detection: Identifies document type (marksheet vs. degree), detects 
+table regions and column headers using a lightweight on-device TFLite model. 
+● Layer 3 - Text Extraction: Runs Google ML Kit Text Recognition on detected regions 
+to extract raw text strings. 
+● Layer 4 - Structured Data Parsing: A rule-based parser maps text to a typed schema 
+(board, year, marks, aggregate  %, DOB). Per-field confidence scores calculated. Raw 
+image purged via dart:io File.delete() on success. 
+  
+15 
+ 
+9. Data Design 
+9.1 Local Database Schema (Hive / Isar) 
+Collection Key Fields Notes 
+UserProfile 
+userId, name, dateOfBirth, 
+gender, socialCategory, 
+stateOfDomicile, 
+educationalStatus, 
+primaryExamGoal 
+Social category stored encrypted. No 
+certificate document ever stored. 
+AcademicDocumen
+t 
+docId, docType, boardName, year, 
+aggregate, cgpa, stream, 
+confidence, verifiedAt 
+Structured fields only. Raw image 
+never persisted. 
+EligibilityResult resultId, examId, matchPercent, 
+status, reasonText, computedAt 
+Cached per exam; recomputed on profile 
+or document change. 
+TrackedExam 
+examId, examName, 
+notificationDate, 
+registrationDeadline, 
+registrationUrl, 
+additionalDocsRequired 
+Populated from remote API; cached for 
+offline access. 
+AttemptRecord attemptId, examId, examYear, 
+attemptNumber, documentRef 
+Derived from uploaded admit cards or 
+manual entry. 
+DeadlineAlert alertId, examId, deadlineDays, 
+priority, snoozedUntil Drives Dashboard countdown cards. 
+ 
+9.2 Data Flow 
+● User scans document → OCR pipeline extracts structured fields → 
+AcademicDocument record written to local DB. 
+● AcademicDocument write triggers EligibilityNotifier → EligibilityEngine reads 
+UserProfile + all AcademicDocuments → computes new EligibilityResult per 
+TrackedExam. 
+● Dashboard and Timeline observe EligibilityResult stream via Riverpod 
+FutureProvider → only the changed card rebuilds. 
+● On an app  open with an active  session, TrackedExam and DeadlineAlert data is 
+refreshed from the remote API using a stale-while-revalidate caching strategy. 
+ 
+9.3 Privacy & Data Minimisation 
+16 
+ 
+● Raw document images retained only in volatile memory (RAM) during OCR 
+processing. Purged immediately on extraction completion. 
+● Social category stored as an encrypted string in UserProfile. No physical certificate 
+document is ever stored or transmitted. 
+● JWT tokens stored exclusively in flutter_secure_storage (iOS Keychain  / Android 
+Keystore). Never in SharedPreferences or any plaintext file. 
+● Only structured EligibilityResult and UserProfile fields are synced to the backend. 
+Document images and raw OCR text are never transmitted. 
+10. APIs & Integrations 
+10.1 Internal REST API 
+Endpoint Metho
+d Purpose Auth 
+POST /auth/login POST Email / password authentication; 
+returns Yogya JWT. No 
+POST /auth/google POST Exchanges Google ID token for Yogya 
+JWT. No 
+GET /exams GET 
+Returns all TrackedExams with 
+eligibility rules, deadlines, and 
+registration URLs. 
+Yes 
+POST /profile POST Creates or updates UserProfile on the 
+backend. Yes 
+POST /documents POST Syncs structured AcademicDocument 
+fields (no images) to backend. Yes 
+GET 
+/eligibility/report GET Generates Full Eligibility Report PDF 
+server-side; returns download URL. Yes 
+GET /deadlines GET Returns upcoming deadlines ordered 
+by urgency for the user’s profile. Yes 
+ 
+10.2 Third-Party Packages 
+Package Purpose 
+google_sign_in OAuth 2.0 authentication via Google account. 
+google_mlkit_text_recognition On-device OCR for document text extraction. 
+tflite_flutter Layout detection model for document type classification. 
+flutter_secure_storage Hardware-backed JWT and credential storage. 
+17 
+ 
+Package Purpose 
+mobile_scanner / camera Live document capture for the OCR viewfinder. 
+image_picker Gallery-based document import for bulk upload. 
+dio REST API communication with JWT interceptors and retry 
+logic. 
+hive / isar Offline-first embedded local database. 
+go_router Declarative navigation, deep linking, and auth guards. 
+flutter_riverpod 3.0 Global and scoped state management across all screens. 
+freezed + json_serializable Type-safe DTOs and immutable data models. 
+fl_chart Dashboard donut chart and eligibility match progress bars. 
+timeline_tile Eligibility Timeline node rendering. 
+firebase_messaging Future (P2): push notifications for deadline alerts. 
+ 
+10.3 Official Exam Portal Links 
+Exam Registration Portal Exam Info Link 
+UPSC Civil Services 
+(IAS / IPS / IFS) upsconline.nic.in upsc.gov.in/examinations/civil-services-
+examination 
+UPSC CDS 
+(IMA / OTA / AFA) upsconline.nic.in upsc.gov.in/examinations/combined-defence-
+services-examination 
+UPSC NDA & NA upsconline.nic.in upsc.gov.in/examinations/national-defence-
+academy-and-naval-academy-examination 
+AFCAT afcat.cdac.in indianairforce.nic.in/content/afcat 
+SSC CGL ssc.gov.in ssc.gov.in (notifications section) 
+SSC CHSL ssc.gov.in ssc.gov.in (notifications section) 
+IBPS PO ibps.in ibps.in/crp-po-mt.html 
+IBPS Clerk ibps.in ibps.in/crp-clerk.html 
+RBI Grade B Officer opportunities.rbi.org.in rbi.org.in/Scripts/Vacancies.aspx 
+State PSC (dynamic) 
+Resolved from user’s 
+State of Domicile in 
+Profile 
+Linked dynamically in-app 
+ 
+Note: Yogya does not store or upload these additional documents. It surfaces each requirement as an 
+informational card with a direct link so the user can submit documents on the official portal at the 
+time of registration. 
+18 
+ 
+11. Development Plan 
+11.1 Technology Stack 
+Layer Technology Rationale 
+Frontend 
+Framework Flutter (Dart) Single codebase for Android & iOS; excellent 
+animation support. 
+State 
+Management Riverpod 3.0 Compile-safe, testable, no BuildContext dependency. 
+Routing go_router Declarative, supports deep links and auth guards 
+natively. 
+Networking Dio Interceptors, retry logic, multipart support. 
+Local DB Hive / Isar Fast, NoSQL, Flutter-native; supports offline-first. 
+OCR ML Kit + TFLite On-device; no image upload required; preserves 
+privacy. 
+Auth Storage flutter_secure_stora
+ge 
+Hardware-encrypted credential storage 
+(Keychain / Keystore). 
+Code Generation freezed + 
+json_serializable 
+Reduces boilerplate; eliminates JSON parsing 
+errors. 
+Backend Node.js / Firebase 
+(TBD) 
+Lightweight REST API for user data sync and report 
+generation. 
+ 
+11.2 Sprint Plan 
+Sprint Duration Deliverables 
+Sprint 0 - Setup 1 week 
+Project scaffold, Flutter environment, go_router setup, 
+Riverpod skeleton, CI/CD pipeline, design token 
+implementation. 
+Sprint 1 - Auth & 
+Profile 2 weeks 
+Splash Screen, Login Screen (email + Google OAuth), Profile 
+Screen (Basic Info, Category, Academic Docs section), 
+flutter_secure_storage integration. 
+Sprint 2 - OCR 
+Pipeline 3 weeks 
+Camera viewfinder, 4-layer OCR pipeline, progress feedback 
+card, 10th Marksheet extraction, document verification UI, 
+data purge logic. 
+Sprint 3 - Core 
+Documents 2 weeks 12th Marksheet OCR, Graduation CGPA OCR, auto-CGPA-to-
+ % conversion, document library UI, bulk import. 
+Sprint 4 - 
+Eligibility Engine 3 weeks Rule-based eligibility engine for 10 exams, Live Eligibility 
+Pulse, 3-step wizard UI, EligibilityNotifier, real-time updates. 
+19 
+ 
+Sprint Duration Deliverables 
+Sprint 5 - 
+Dashboard & 
+Timeline 
+2 weeks Dashboard (donut, deadlines, quote), Eligibility Timeline 
+(timeline_tile nodes), Next Steps cards, registration links. 
+Sprint 6 - 
+Navigation & 
+Settings 
+1 week Side drawer, Attempt History screen, Settings screen, Sign 
+Out, Help & Support skeleton. 
+Sprint 7 - API 
+Integration 2 weeks Backend API integration, TrackedExam sync, deadline refresh, 
+Full Eligibility Report PDF generation. 
+Sprint 8 - QA & 
+Polish 2 weeks End-to-end testing, performance profiling, accessibility review, 
+animation polish, store submission preparation. 
+Sprint 9 - v2 
+Features Ongoing Push notifications (FCM), multi-language support (Flutter 
+l10n), Help & Support full build, Password Reset flow. 
+ 
+11.3 Team Responsibilities 
+Team Member Primary Responsibility 
+Aditya Kumar Yadav OCR pipeline implementation (ML Kit + TFLite), document 
+processing, image pre-processing. 
+Gaurav Yadav Architecture design, Riverpod state management, Eligibility 
+Engine business logic, API integration. 
+Hitesh Purohit UI implementation (Dashboard, Timeline, Settings, Help 
+screens), animation, go_router navigation. 
+Aman Profile screen, Login screen, secure storage, backend API design, 
+database schema implementation. 
+12. Deliverables 
+12.1 Software Deliverables 
+● Fully functional Flutter application (Android APK + iOS IPA) covering all screens 
+specified in Sections 7 and 8. 
+● OCR pipeline processing 10th Marksheet, 12th Marksheet, and Graduation 
+CGPA / Degree Certificate at ≥ 95 % and ≥ 90 % confidence thresholds respectively. 
+● Rule-based Eligibility Engine covering UPSC CSE, CDS, NDA, AFCAT, SSC CGL, 
+SSC CHSL, IBPS PO, IBPS Clerk, RBI Grade B, and State PSC examinations. 
+● Secure authentication system (Email / Password + Google OAuth) with JWT stored in 
+hardware-backed secure storage. 
+20 
+ 
+● Offline-first local database with structured academic data, eligibility results, and 
+deadline alerts. 
+● Integration with official exam portal URLs for registration links and additional 
+document information. 
+ 
+12.2 Design Deliverables 
+● This Design Document covering all 12 sections: Problem Statement, Objectives, User 
+Personas, Competitive Analysis, Features List, App Flow, UI/UX Design, Technical 
+Architecture, Data Design, APIs & Integrations, Development Plan, and Deliverables. 
+● Screen-level wireframes embedded in Section 7.2 with reference UI screenshots from 
+the Yogya prototype. 
+● Design token specification (colours, typography, border radii, elevation) documented 
+in Section 7.1. 
+ 
+12.3 Documentation Deliverables 
+● API documentation for all internal REST endpoints (Section 10.1). 
+● Data schema documentation for all local database collections (Section 9.1). 
+● Third-party integration list with package names and purposes (Section 10.2). 
+● Sprint plan and team responsibility matrix (Sections 11.2 and 11.3). 
+ 
+12.4 Quality Assurance Deliverables 
+● Unit tests for the Eligibility Engine covering all 10 tracked examinations and all 
+category variants (General, OBC, SC, ST, EWS). 
+● Widget tests for the OCR progress feedback card, Live Eligibility Pulse, and Timeline 
+nodes. 
+● Integration test for the end -to-end flow: document scan → OCR extraction → 
+eligibility computation → dashboard update. 
+● Performance benchmark: app cold -start under 2 seconds; OCR processing under 5 
+seconds for a standard A4 marksheet photograph. 
+ 
+- End of Document - 

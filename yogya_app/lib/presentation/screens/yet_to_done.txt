@@ -1,0 +1,8 @@
+ email validation 
+ forgot password logic 
+ sign in logic with database 
+ google loginsetup
+ signup page screen 
+ 
+ scan
+ please keep in mind about the widgets 
