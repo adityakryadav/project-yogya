@@ -518,14 +518,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       duration: Duration(milliseconds: 1200),
     );
 
-    _fadeAnims = List.generate(6, (i) {
+    _fadeAnims = List.generate(5, (i) {
       return Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
         parent: _ctrl,
         curve: Interval(i * 0.12, 0.5 + i * 0.1, curve: Curves.easeOut),
       ));
     });
 
-    _slideAnims = List.generate(6, (i) {
+    _slideAnims = List.generate(5, (i) {
       return Tween<Offset>(
         begin: Offset(0, 0.15),
         end: Offset.zero,
@@ -545,7 +545,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   }
 
   Widget _animItem(int index, Widget child) {
-    final i = index.clamp(0, 5);
+    final i = index.clamp(0, 4);
     return SlideTransition(
       position: _slideAnims[i],
       child: FadeTransition(opacity: _fadeAnims[i], child: child),
@@ -698,35 +698,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
               SizedBox(height: 16),
 
-              // Data & Storage — same as before
+              // About
               _animItem(
                 3,
-                _buildSection(
-                  'Data & Storage',
-                  Icons.storage_rounded,
-                  [
-                    _buildActionTile(
-                      'Clear Cache',
-                      'Free up storage space',
-                      Icons.cleaning_services_rounded,
-                      () => _showSnack('Cache cleared'),
-                    ),
-                    Divider(color: context.colors.glassBorder, height: 1),
-                    _buildActionTile(
-                      'Export Data',
-                      'Download your data as JSON',
-                      Icons.download_rounded,
-                      () => _showSnack('Data exported'),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 16),
-
-              // About — same as before
-              _animItem(
-                4,
                 _buildSection(
                   'About',
                   Icons.info_outline_rounded,
@@ -734,25 +708,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     _buildInfoTile(
                         'Version', AppStrings.version, Icons.tag_rounded),
                     Divider(color: context.colors.glassBorder, height: 1),
+                    _buildInfoTile(
+                        'Developer', 'Team Yogya', Icons.groups_rounded),
+                    Divider(color: context.colors.glassBorder, height: 1),
                     _buildActionTile(
                       'Terms of Service',
                       'Read our terms',
                       Icons.description_rounded,
-                      () {},
+                      () => _showTermsOfService(),
                     ),
                     Divider(color: context.colors.glassBorder, height: 1),
                     _buildActionTile(
                       'Privacy Policy',
                       'How we handle your data',
                       Icons.privacy_tip_rounded,
-                      () {},
+                      () => _showPrivacyPolicy(),
                     ),
                     Divider(color: context.colors.glassBorder, height: 1),
                     _buildActionTile(
                       'Open Source Licenses',
                       'Third party licenses',
                       Icons.code_rounded,
-                      () {},
+                      () => _showOpenSourceLicenses(),
                     ),
                   ],
                 ),
@@ -762,7 +739,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
               // ── Logout button — ab real Firebase logout ───
               _animItem(
-                5,
+                4,
                 GestureDetector(
                   onTap: isLoggingOut ? null : _handleLogout,
                   child: AnimatedOpacity(
@@ -1112,6 +1089,228 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+    );
+  }
+
+  // ── About Dialogs ────────────────────────────────────────
+
+  void _showTermsOfService() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: context.colors.bgCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.description_rounded,
+                color: context.colors.primaryLight, size: 22),
+            SizedBox(width: 10),
+            Text(
+              'Terms of Service',
+              style: TextStyle(
+                color: context.colors.textPrimary,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _tosSection('1. Acceptance of Terms',
+                  'By downloading, installing, or using the Yogya application, you agree to be bound by these Terms of Service. If you do not agree, please do not use the app.'),
+              _tosSection('2. Description of Service',
+                  'Yogya is an exam eligibility tracking and preparation platform. It provides tools to check eligibility criteria, manage academic documents, and track exam timelines. The information is for guidance purposes only.'),
+              _tosSection('3. User Accounts',
+                  'You are responsible for maintaining the confidentiality of your account credentials. You must provide accurate and complete information during registration. You must be at least 13 years old to use this service.'),
+              _tosSection('4. Acceptable Use',
+                  'You agree not to misuse the service, upload false documents, attempt to reverse-engineer the app, or use automated tools to access the service. Any violation may result in account termination.'),
+              _tosSection('5. Intellectual Property',
+                  'All content, features, and functionality of Yogya are owned by Team Yogya and are protected by copyright and trademark laws.'),
+              _tosSection('6. Disclaimer',
+                  'Yogya provides eligibility information based on publicly available data. We do not guarantee accuracy of eligibility results. Always verify with official exam authorities before making decisions.'),
+              _tosSection('7. Limitation of Liability',
+                  'Yogya shall not be liable for any indirect, incidental, or consequential damages arising from use of the application.'),
+              _tosSection('8. Changes to Terms',
+                  'We reserve the right to modify these terms at any time. Continued use of the app after changes constitutes acceptance of the new terms.'),
+              SizedBox(height: 8),
+              Text(
+                'Last updated: April 2026',
+                style: TextStyle(
+                  color: context.colors.textHint,
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Close',
+              style: TextStyle(
+                color: context.colors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tosSection(String title, String body) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: context.colors.textPrimary,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            body,
+            style: TextStyle(
+              color: context.colors.textSecondary,
+              fontSize: 12,
+              height: 1.5,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPrivacyPolicy() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: context.colors.bgCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.privacy_tip_rounded,
+                color: context.colors.primaryLight, size: 22),
+            SizedBox(width: 10),
+            Text(
+              'Privacy Policy',
+              style: TextStyle(
+                color: context.colors.textPrimary,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _tosSection('1. Information We Collect',
+                  'We collect information you provide directly: name, email address, academic qualifications, and scanned document data. We also collect usage analytics such as feature usage frequency and app performance data.'),
+              _tosSection('2. How We Use Your Information',
+                  'Your information is used to provide eligibility checking services, personalize your experience, send exam deadline reminders, and improve our services. We do not sell your personal data to third parties.'),
+              _tosSection('3. Data Storage',
+                  'Your data is stored securely using Firebase services with encryption at rest and in transit. Academic documents are stored locally on your device using Hive encrypted storage and are not uploaded to our servers unless you explicitly choose to sync.'),
+              _tosSection('4. Data Sharing',
+                  'We do not share your personal information with third parties except: when required by law, to protect our rights, or with service providers who assist in operating our app (e.g., Firebase, Google Analytics) under strict data processing agreements.'),
+              _tosSection('5. Your Rights',
+                  'You have the right to access, correct, or delete your personal data at any time. You can export your data or request account deletion through the app settings or by contacting us.'),
+              _tosSection('6. Cookies & Tracking',
+                  'We use Firebase Analytics to collect anonymous usage data. You can opt out of analytics collection in the app notification settings.'),
+              _tosSection('7. Children\'s Privacy',
+                  'Yogya is not intended for children under 13. We do not knowingly collect personal information from children under 13 years of age.'),
+              _tosSection('8. Contact Us',
+                  'If you have questions about this Privacy Policy, please contact us at support@yogya-app.com.'),
+              SizedBox(height: 8),
+              Text(
+                'Last updated: April 2026',
+                style: TextStyle(
+                  color: context.colors.textHint,
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Close',
+              style: TextStyle(
+                color: context.colors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOpenSourceLicenses() {
+    showLicensePage(
+      context: context,
+      applicationName: 'Yogya',
+      applicationVersion: '1.0.0',
+      applicationIcon: Padding(
+        padding: EdgeInsets.all(16),
+        child: Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            gradient: context.colors.primaryGradient,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Center(
+            child: Text(
+              'Y',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
+        ),
+      ),
+      applicationLegalese:
+          '© 2026 Team Yogya. All rights reserved.\n\n'
+          'Yogya uses the following open source packages:\n'
+          '• Flutter & Dart — BSD 3-Clause License\n'
+          '• Firebase — Apache License 2.0\n'
+          '• Riverpod — MIT License\n'
+          '• GoRouter — BSD 3-Clause License\n'
+          '• Hive — Apache License 2.0\n'
+          '• Google Fonts — Apache License 2.0\n'
+          '• FL Chart — MIT License\n'
+          '• Flutter Secure Storage — BSD 3-Clause License\n\n'
+          'Full license texts are available in the list below.',
     );
   }
 }

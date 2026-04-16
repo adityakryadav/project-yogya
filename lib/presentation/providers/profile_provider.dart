@@ -459,6 +459,9 @@ final profileNotifierProvider =
 final profileLoaderProvider = FutureProvider<void>((ref) async {
   final user = ref.watch(currentUserProvider);
   if (user != null) {
-    await ref.read(profileNotifierProvider.notifier).loadProfile(user.uid);
+    // Defer state modification to avoid Riverpod build-phase assertion
+    await Future.microtask(() async {
+      await ref.read(profileNotifierProvider.notifier).loadProfile(user.uid);
+    });
   }
 });

@@ -14,31 +14,35 @@ class NotificationService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   Future<void> initialize() async {
-    await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
+    try {
+      await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
 
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-    final token = await _messaging.getToken();
-    if (token != null && token.isNotEmpty) {
-      await _syncToken(token);
+      final token = await _messaging.getToken();
+      if (token != null && token.isNotEmpty) {
+        await _syncToken(token);
+      }
+
+      _messaging.onTokenRefresh.listen((token) async {
+        await _syncToken(token);
+      });
+
+      FirebaseMessaging.onMessage.listen((message) {
+        log('Foreground notification: ${message.notification?.title}');
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((message) {
+        log('Notification opened app: ${message.data}');
+      });
+    } catch (e) {
+      log('Notification initialization failed: $e');
     }
-
-    _messaging.onTokenRefresh.listen((token) async {
-      await _syncToken(token);
-    });
-
-    FirebaseMessaging.onMessage.listen((message) {
-      log('Foreground notification: ${message.notification?.title}');
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      log('Notification opened app: ${message.data}');
-    });
   }
 
   Future<void> _syncToken(String token) async {
