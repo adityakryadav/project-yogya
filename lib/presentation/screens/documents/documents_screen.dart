@@ -684,20 +684,19 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
                   TextButton.icon(
                     onPressed: () {
                       ref.read(ocrProvider.notifier).cancelScan();
-                      _openManualEntry();
                     },
-                    icon: Icon(Icons.edit_document, color: context.colors.primaryLight),
+                    icon: Icon(Icons.cancel_rounded, color: context.colors.textHint),
                     label: Text(
-                      'Cancel & Edit Manually',
+                      'Cancel Scanning',
                       style: TextStyle(
                         fontFamily: 'Poppins',
-                        color: context.colors.primaryLight,
+                        color: context.colors.textHint,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      backgroundColor: context.colors.primary.withOpacity(0.1),
+                      backgroundColor: context.colors.bgCardLight,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -957,11 +956,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
             behavior: SnackBarBehavior.floating,
           ),
         );
-        
-        // After showing error indicating a wrong marksheet, fallback to manual entry
         ref.read(ocrProvider.notifier).reset();
-        await Future.delayed(const Duration(seconds: 1));
-        if (mounted) _openManualEntry();
       }
       return;
     }
@@ -1221,52 +1216,5 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
         ),
       ),
     );
-  }
-
-  void _openManualEntry() async {
-    if (!mounted) return;
-    final confirmed = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => OcrReviewScreen(
-          result: const OcrResult(success: true, rawText: ''), // empty manual result
-          onConfirm: ({
-            required String docType,
-            required String dateOfBirth,
-            required String university,
-            required String percentage,
-            required String passingYear,
-            required String extractedName,
-          }) async {
-            final user = ref.read(currentUserProvider);
-            if (user != null) {
-              await ref.read(profileNotifierProvider.notifier).updateFromOcr(
-                    uid: user.uid,
-                    docType: docType,
-                    dateOfBirth: dateOfBirth,
-                    university: university,
-                    percentage: percentage,
-                    passingYear: passingYear,
-                    extractedName: extractedName,
-                  );
-            }
-          },
-        ),
-      ),
-    );
-
-    if (confirmed == true && mounted) {
-      setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Manual entry saved successfully.',
-            style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
-          ),
-          backgroundColor: context.colors.eligible,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
   }
 }
