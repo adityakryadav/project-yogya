@@ -674,9 +674,37 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
         ),
         body: SafeArea(
           child: Center(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
-              child: OcrProgressCard(ocrState: ocrState),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  OcrProgressCard(ocrState: ocrState),
+                  const SizedBox(height: 30),
+                  TextButton.icon(
+                    onPressed: () {
+                      ref.read(ocrProvider.notifier).cancelScan();
+                      _openManualEntry();
+                    },
+                    icon: Icon(Icons.edit_document, color: context.colors.primaryLight),
+                    label: Text(
+                      'Cancel & Edit Manually',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: context.colors.primaryLight,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      backgroundColor: context.colors.primary.withOpacity(0.1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -907,7 +935,36 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
         ? await ocrNotifier.scanFromCamera()
         : await ocrNotifier.scanFromGallery();
 
-    if (result == null) return;
+    if (result == null) {
+      final ocrState = ref.read(ocrProvider);
+      if (ocrState.status == OcrStatus.error && ocrState.errorMessage != null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline_rounded, color: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    ocrState.errorMessage!,
+                    style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: context.colors.urgencyMedium,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        
+        // After showing error indicating a wrong marksheet, fallback to manual entry
+        ref.read(ocrProvider.notifier).reset();
+        await Future.delayed(const Duration(seconds: 1));
+        if (mounted) _openManualEntry();
+      }
+      return;
+    }
 
     final ocrState = ref.read(ocrProvider);
 
@@ -1164,5 +1221,52 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
         ),
       ),
     );
+  }
+
+  void _openManualEntry() async {
+    if (!mounted) return;
+    final confirmed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OcrReviewScreen(
+          result: const OcrResult(success: true, rawText: ''), // empty manual result
+          onConfirm: ({
+            required String docType,
+            required String dateOfBirth,
+            required String university,
+            required String percentage,
+            required String passingYear,
+            required String extractedName,
+          }) async {
+            final user = ref.read(currentUserProvider);
+            if (user != null) {
+              await ref.read(profileNotifierProvider.notifier).updateFromOcr(
+                    uid: user.uid,
+                    docType: docType,
+                    dateOfBirth: dateOfBirth,
+                    university: university,
+                    percentage: percentage,
+                    passingYear: passingYear,
+                    extractedName: extractedName,
+                  );
+            }
+          },
+        ),
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Manual entry saved successfully.',
+            style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+          ),
+          backgroundColor: context.colors.eligible,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }

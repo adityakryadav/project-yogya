@@ -201,6 +201,7 @@ class OcrNotifier extends StateNotifier<OcrState> {
 
   final _ocrService = OcrService.instance;
   static const double _reviewThreshold = 0.65;
+  bool _isCancelled = false;
 
   Future<OcrResult?> scanFromCamera() async {
     return _processImage(() => _ocrService.pickFromCamera());
@@ -210,9 +211,15 @@ class OcrNotifier extends StateNotifier<OcrState> {
     return _processImage(() => _ocrService.pickFromGallery());
   }
 
+  void cancelScan() {
+    _isCancelled = true;
+    state = const OcrState();
+  }
+
   Future<OcrResult?> _processImage(
     Future<File?> Function() picker,
   ) async {
+    _isCancelled = false;
     state = state.copyWith(
       status: OcrStatus.picking,
       progress: 0.1,
@@ -222,7 +229,7 @@ class OcrNotifier extends StateNotifier<OcrState> {
     );
 
     final imageFile = await picker();
-    if (imageFile == null) {
+    if (imageFile == null || _isCancelled) {
       state = const OcrState();
       return null;
     }
@@ -233,12 +240,14 @@ class OcrNotifier extends StateNotifier<OcrState> {
       statusMessage: 'Layer 1: Pre-processing image...',
     );
     await Future.delayed(const Duration(milliseconds: 350));
+    if (_isCancelled) { reset(); return null; }
 
     state = state.copyWith(
       progress: 0.5,
       statusMessage: 'Layer 2: Detecting document layout...',
     );
     await Future.delayed(const Duration(milliseconds: 300));
+    if (_isCancelled) { reset(); return null; }
 
     state = state.copyWith(
       progress: 0.7,
@@ -246,18 +255,24 @@ class OcrNotifier extends StateNotifier<OcrState> {
     );
 
     final result = await _ocrService.extractText(imageFile);
+    if (_isCancelled) { reset(); return null; }
 
     state = state.copyWith(
       progress: 0.9,
       statusMessage: 'Layer 4: Parsing data...',
     );
     await Future.delayed(const Duration(milliseconds: 250));
+    if (_isCancelled) { reset(); return null; }
 
-    if (!result.success) {
+    if (!result.success || result.docType == 'unknown') {
+      final errorMsg = result.docType == 'unknown' 
+          ? 'Wrong marksheet entered. Please re-scan or enter data manually.'
+          : (result.errorMessage ?? 'OCR failed');
+          
       state = state.copyWith(
         status: OcrStatus.error,
         progress: 0.0,
-        errorMessage: result.errorMessage ?? 'OCR failed',
+        errorMessage: errorMsg,
         needsReview: false,
       );
       return null;
@@ -297,7 +312,10 @@ class OcrNotifier extends StateNotifier<OcrState> {
     state = state.copyWith(needsReview: false);
   }
 
-  void reset() => state = const OcrState();
+  void reset() {
+    _isCancelled = false;
+    state = const OcrState();
+  }
 }
 
 // ── Provider ──────────────────────────────────────────────

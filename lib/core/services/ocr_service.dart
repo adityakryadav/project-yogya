@@ -912,6 +912,8 @@ class OcrService {
         lowerText.contains('10th') ||
         lowerText.contains('matric') ||
         lowerText.contains('sslc') ||
+        lowerText.contains('high school') ||
+        lowerText.contains('highschool') ||
         lowerText.contains('माध्यमिक परीक्षा')) {
       return '10th';
     }
@@ -1084,6 +1086,19 @@ class OcrService {
         .replaceAll('o/', '0/')
         .replaceAll('o ', '0 ')
         .replaceAll(' l ', ' 1 ');
+
+    // Match exact combinations of Marks Obtained and Maximum Marks frequently found on 10th marksheets
+    final grandTotalPattern = RegExp(
+      r'(?:grand\s*total|total|marks\s*obtained)[\s:a-z]*(\d{3,4})[\s\/of]*(\d{3,4})',
+      caseSensitive: false,
+    ).firstMatch(normalized);
+    if (grandTotalPattern != null) {
+      final obt = double.tryParse(grandTotalPattern.group(1) ?? '');
+      final tot = double.tryParse(grandTotalPattern.group(2) ?? '');
+      if (obt != null && tot != null && tot > 0 && obt <= tot && tot >= 100) {
+        return '${((obt / tot) * 100).toStringAsFixed(1)}%';
+      }
+    }
 
     final hindiTotalPercent = RegExp(
       r'(?:कुल\s*प्राप्तांक|total\s*marks\s*obtained)\s*[:\-]?\s*(\d{2,4})\s+(\d{2,3}(?:\.\d{1,2})?)\s*%',

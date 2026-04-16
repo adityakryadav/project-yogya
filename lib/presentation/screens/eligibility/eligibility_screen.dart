@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/profile_provider.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../providers/eligibility_provider.dart';
+import '../../../data/models/user_profile_model.dart';
 
 class EligibilityScreen extends ConsumerStatefulWidget {
   EligibilityScreen({super.key});
@@ -49,8 +50,8 @@ class _EligibilityScreenState extends ConsumerState<EligibilityScreen>
     }
   }
 
-  Map<String, String> _profileSnapshot() {
-    final profile = ref.read(profileNotifierProvider).profile;
+// Use watched profile state to guarantee reactive updates
+  Map<String, String> _profileSnapshot(UserProfileModel? profile) {
     if (profile == null) {
       return {
         'age': '0',
@@ -143,6 +144,7 @@ class _EligibilityScreenState extends ConsumerState<EligibilityScreen>
   @override
   Widget build(BuildContext context) {
     final eligState = ref.watch(eligibilityProvider);
+    final profileState = ref.watch(profileNotifierProvider);
     final isChecking = eligState.isLoading;
 
     return Scaffold(
@@ -181,7 +183,7 @@ class _EligibilityScreenState extends ConsumerState<EligibilityScreen>
             Expanded(
               child: FadeTransition(
                 opacity: _stepFade,
-                child: _buildStepContent(eligState),
+                child: _buildStepContent(eligState, profileState.profile),
               ),
             ),
 
@@ -221,12 +223,12 @@ class _EligibilityScreenState extends ConsumerState<EligibilityScreen>
     );
   }
 
-  Widget _buildStepContent(EligibilityState eligState) {
+  Widget _buildStepContent(EligibilityState eligState, UserProfileModel? profile) {
     switch (_currentStep) {
       case 0:
         return _buildExamSelection();
       case 1:
-        return _buildVerifyDetails();
+        return _buildVerifyDetails(profile);
       case 2:
         return _buildResults(eligState);
       default:
@@ -307,8 +309,8 @@ class _EligibilityScreenState extends ConsumerState<EligibilityScreen>
   }
 
   // Step 2: Verify Details
-  Widget _buildVerifyDetails() {
-    final snapshot = _profileSnapshot();
+  Widget _buildVerifyDetails(UserProfileModel? profile) {
+    final snapshot = _profileSnapshot(profile);
     return SingleChildScrollView(
       physics: BouncingScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 20),
