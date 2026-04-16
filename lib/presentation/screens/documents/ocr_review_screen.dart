@@ -92,7 +92,7 @@ class _OcrReviewScreenState extends State<OcrReviewScreen> {
         extractedName: _name.text.trim(),
       );
 
-      if (mounted) Navigator.pop(context);
+      if (mounted) Navigator.pop(context, true);
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -102,50 +102,65 @@ class _OcrReviewScreenState extends State<OcrReviewScreen> {
     }
   }
 
+  Future<bool> _onWillPop() async {
+    if (_isSaving) return false;
+    Navigator.pop(context, false);
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Review OCR Data')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(
-            controller: _name,
-            decoration: const InputDecoration(labelText: 'Name'),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Review OCR Data'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _isSaving ? null : () => Navigator.pop(context, false),
           ),
-          TextField(
-            controller: _dob,
-            decoration: const InputDecoration(labelText: 'DOB (DD/MM/YYYY)'),
-          ),
-          TextField(
-            controller: _uni,
-            decoration: const InputDecoration(labelText: 'University / Board'),
-          ),
-          TextField(
-            controller: _year,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Passing Year'),
-          ),
-          TextField(
-            controller: _score,
-            decoration: const InputDecoration(labelText: 'Percentage / CGPA'),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 10),
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            TextField(
+              controller: _name,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            TextField(
+              controller: _dob,
+              decoration: const InputDecoration(labelText: 'DOB (DD/MM/YYYY)'),
+            ),
+            TextField(
+              controller: _uni,
+              decoration: const InputDecoration(labelText: 'University / Board'),
+            ),
+            TextField(
+              controller: _year,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Passing Year'),
+            ),
+            TextField(
+              controller: _score,
+              decoration: const InputDecoration(labelText: 'Percentage / CGPA'),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 10),
+              Text(_error!, style: const TextStyle(color: Colors.red)),
+            ],
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _isSaving ? null : _submit,
+              child: _isSaving
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Confirm & Save'),
+            ),
           ],
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _isSaving ? null : _submit,
-            child: _isSaving
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Confirm & Save'),
-          ),
-        ],
+        ),
       ),
     );
   }

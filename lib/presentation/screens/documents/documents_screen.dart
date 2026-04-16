@@ -14,22 +14,22 @@
 // import 'widgets/scanned_doc_card.dart';
 // import 'widgets/ocr_progress_card.dart';
 // import '../../../core/services/ocr_service.dart';
- 
+
 // // â”€â”€ Change 1: ConsumerStatefulWidget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // class DocumentsScreen extends ConsumerStatefulWidget {
 //   DocumentsScreen({super.key});
- 
+
 //   @override
 //   ConsumerState<DocumentsScreen> createState() => _DocumentsScreenState();
 // }
- 
+
 // // â”€â”€ Change 2: ConsumerState â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
 //     with SingleTickerProviderStateMixin {
 //   int _currentTab = 0;
 //   late AnimationController _ctrl;
 //   late Animation<double> _fadeAnim;
- 
+
 //   @override
 //   void initState() {
 //     super.initState();
@@ -40,13 +40,13 @@
 //     _fadeAnim = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
 //     _ctrl.forward();
 //   }
- 
+
 //   @override
 //   void dispose() {
 //     _ctrl.dispose();
 //     super.dispose();
 //   }
- 
+
 //   // â”€â”€ Change 3: Mock docs hata ke real Hive docs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //   List<Map<String, dynamic>> get _allDocs {
 //     final hiveDocs = HiveService.getAllDocs();
@@ -65,7 +65,7 @@
 //         default:
 //           icon = Icons.insert_drive_file_rounded;
 //       }
- 
+
 //       return {
 //         'name':   doc.docType == '10th'
 //             ? '10th Marksheet'
@@ -82,7 +82,7 @@
 //       };
 //     }).toList();
 //   }
- 
+
 //   List<Map<String, dynamic>> get _filteredDocs {
 //     final all = _allDocs;
 //     if (_currentTab == 0) return all;
@@ -94,12 +94,12 @@
 //     }
 //     return all.where((d) => d['type'] == 'ID Proof').toList();
 //   }
- 
+
 //   @override
 //   Widget build(BuildContext context) {
 //     // â”€â”€ Change 4: OCR state watch karo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //     final ocrState = ref.watch(ocrProvider);
- 
+
 //     // OCR processing chal raha hai to progress card dikhao
 //     if (ocrState.status == OcrStatus.processing ||
 //         ocrState.status == OcrStatus.picking) {
@@ -128,7 +128,7 @@
 //         ),
 //       );
 //     }
- 
+
 //     return Scaffold(
 //       backgroundColor: context.colors.bgDark,
 //       appBar: AppBar(
@@ -164,7 +164,7 @@
 //         child: Column(
 //           children: [
 //             SizedBox(height: 8),
- 
+
 //             // Tabs
 //             FadeTransition(
 //               opacity: _fadeAnim,
@@ -187,9 +187,9 @@
 //                 ),
 //               ),
 //             ),
- 
+
 //             SizedBox(height: 20),
- 
+
 //             // Documents list
 //             Expanded(
 //               child: _filteredDocs.isEmpty
@@ -247,7 +247,7 @@
 //       ),
 //     );
 //   }
- 
+
 //   Widget _buildTab(String label, int index) {
 //     final isSelected = _currentTab == index;
 //     return Expanded(
@@ -274,7 +274,7 @@
 //       ),
 //     );
 //   }
- 
+
 //   // â”€â”€ Change 5: Real scan sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //   void _showScanSheet() {
 //     showModalBottomSheet(
@@ -351,7 +351,7 @@
 //       },
 //     );
 //   }
- 
+
 //   // â”€â”€ Change 6: Real OCR scan function â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //   Future<void> _scanDocument({required bool fromCamera}) async {
 //     final ocrNotifier = ref.read(ocrProvider.notifier);
@@ -553,7 +553,6 @@
 //   }
 // }
 
-
 import '../../../core/theme/theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -632,7 +631,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
                         ? 'Admit Card'
                         : 'Document',
         'type': 'Marksheet',
-        'date': '${doc.uploadedAt.day}/${doc.uploadedAt.month}/${doc.uploadedAt.year}',
+        'date':
+            '${doc.uploadedAt.day}/${doc.uploadedAt.month}/${doc.uploadedAt.year}',
         'status': doc.isVerified ? 'Verified' : 'Needs Review',
         'icon': icon,
         'id': doc.id,
@@ -911,11 +911,11 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
 
     final ocrState = ref.read(ocrProvider);
 
-    // ── LOW CONFIDENCE => REVIEW SCREEN ───────────────────
+    // LOW CONFIDENCE => REVIEW
     if (ocrState.needsReview) {
       if (!mounted) return;
 
-      await Navigator.push(
+      final confirmed = await Navigator.push<bool>(
         context,
         MaterialPageRoute(
           builder: (_) => OcrReviewScreen(
@@ -946,26 +946,41 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
         ),
       );
 
-      ref.read(ocrProvider.notifier).markReviewed();
-      ref.read(ocrProvider.notifier).reset();
+      if (confirmed == true) {
+        ref.read(ocrProvider.notifier).markReviewed();
+        ref.read(ocrProvider.notifier).reset();
 
-      if (mounted) {
-        setState(() {});
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Reviewed and saved successfully.',
-              style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+        if (mounted) {
+          setState(() {});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Reviewed and saved successfully.',
+                style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+              ),
+              backgroundColor: context.colors.eligible,
+              behavior: SnackBarBehavior.floating,
             ),
-            backgroundColor: context.colors.eligible,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Review cancelled. Data not saved.',
+                style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+              ),
+              backgroundColor: context.colors.urgencyMedium,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
       return;
     }
 
-    // ── HIGH CONFIDENCE => DIRECT SAVE ───────────────────
+    // HIGH CONFIDENCE => DIRECT SAVE
     final attemptLogged = await _autoLogAttemptFromAdmitCard(result);
 
     if (result.dateOfBirth.isNotEmpty ||
@@ -998,7 +1013,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+            const Icon(Icons.check_circle_rounded,
+                color: Colors.white, size: 18),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -1006,7 +1022,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
                     ? '${result.docType.toUpperCase()} document scanned! Confidence: ${(result.confidence * 100).toInt()}%'
                         '${attemptLogged ? ' | Attempt auto-logged' : ''}'
                     : 'Document scanned successfully!',
-                style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                style:
+                    const TextStyle(fontFamily: 'Poppins', color: Colors.white),
               ),
             ),
           ],
@@ -1025,7 +1042,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
     if (result.examName.trim().isEmpty) return false;
 
     final examId = result.examName.trim();
-    final matchedExams = ExamData.allExams.where((exam) => exam.id == examId).toList();
+    final matchedExams =
+        ExamData.allExams.where((exam) => exam.id == examId).toList();
     if (matchedExams.isEmpty) return false;
     final exam = matchedExams.first;
 
@@ -1081,7 +1099,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen>
     if (text.contains('mains')) return 'Mains';
     if (text.contains('tier ii') || text.contains('tier 2')) return 'Tier II';
     if (text.contains('tier i') || text.contains('tier 1')) return 'Tier I';
-    if (text.contains('prelims') || text.contains('preliminary')) return 'Prelims';
+    if (text.contains('prelims') || text.contains('preliminary'))
+      return 'Prelims';
     return 'Prelims';
   }
 
