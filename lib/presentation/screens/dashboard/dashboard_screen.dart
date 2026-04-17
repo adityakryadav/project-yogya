@@ -7,6 +7,7 @@ import '../../../core/constants/strings.dart';
 import '../../../core/constants/exam_data.dart';
 import '../../../core/services/exam_timeline_service.dart';
 import '../../../data/local/hive_service.dart';
+import '../../../data/models/eligibility_result_model.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../providers/profile_provider.dart';
 import '../../providers/remote_data_provider.dart';

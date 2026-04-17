@@ -334,5 +334,26 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 final profileNotifierProvider = StateNotifierProvider<ProfileNotifier, ProfileState>((ref) => ProfileNotifier());
 final profileLoaderProvider = FutureProvider<void>((ref) async {
   final user = ref.watch(currentUserProvider);
-  if (user != null) await ref.read(profileNotifierProvider.notifier).loadProfile(user.uid);
+  if (user != null) {
+    await ref.read(profileNotifierProvider.notifier).loadProfile(user.uid);
+    // If Hive has no profile yet but Firebase has displayName/email, seed it
+    final currentProfile = ref.read(profileNotifierProvider).profile;
+    if (currentProfile == null || currentProfile.name.isEmpty) {
+      final displayName = user.displayName ?? '';
+      final email = user.email ?? '';
+      if (displayName.isNotEmpty || email.isNotEmpty) {
+        await ref.read(profileNotifierProvider.notifier).saveProfile(
+          uid: user.uid,
+          name: displayName,
+          email: email,
+          category: currentProfile?.category ?? 'General',
+          gender: currentProfile?.gender ?? 'Male',
+          dateOfBirth: currentProfile?.dateOfBirth ?? '',
+          phone: currentProfile?.phone ?? '',
+          stateOfDomicile: currentProfile?.stateOfDomicile ?? '',
+          primaryExamGoal: currentProfile?.primaryExamGoal ?? '',
+        );
+      }
+    }
+  }
 });

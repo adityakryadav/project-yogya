@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -280,7 +281,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           ],
                         ),
                         SizedBox(height: 20),
-                        GestureDetector(
+                        kIsWeb
+                            ? Container(
+                                height: 54,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: Colors.grey[700]!),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.smartphone_rounded,
+                                        size: 18, color: Colors.grey[500]),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      'Google Sign-In: Use mobile app',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey[500],
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : GestureDetector(
                           onTap: isLoading ? null : _handleGoogleLogin,
                           child: AnimatedOpacity(
                             opacity: isLoading ? 0.6 : 1.0,

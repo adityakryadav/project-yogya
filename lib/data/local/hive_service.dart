@@ -13,85 +13,104 @@ class HiveService {
   static Future<void> init() async {
     await Hive.initFlutter();
 
-    // Adapters register karo
-    Hive.registerAdapter(UserProfileModelAdapter());
-    Hive.registerAdapter(AcademicDocModelAdapter());
-    Hive.registerAdapter(EligibilityResultModelAdapter());
-
-    // Boxes open karo (with safety for schema changes)
-    try {
-      await Hive.openBox<UserProfileModel>(_userBox);
-    } catch (e) {
-      // Agar schema mismatch hota hai toh box delete karke naya banao
-      await Hive.deleteBoxFromDisk(_userBox);
-      await Hive.openBox<UserProfileModel>(_userBox);
+    // Register adapters (guard against double-registration)
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(UserProfileModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(3)) {
+      Hive.registerAdapter(AcademicDocModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(EligibilityResultModelAdapter());
     }
 
+    // Open boxes safely
+    await _openBoxSafe<UserProfileModel>(_userBox);
+    await _openBoxSafe<AcademicDocModel>(_docsBox);
+    await _openBoxSafe<EligibilityResultModel>(_eligibilityBox);
+  }
+
+  static Future<void> _openBoxSafe<T>(String name) async {
+    if (Hive.isBoxOpen(name)) return;
     try {
-      await Hive.openBox<AcademicDocModel>(_docsBox);
-    } catch (e) {
-      await Hive.deleteBoxFromDisk(_docsBox);
-      await Hive.openBox<AcademicDocModel>(_docsBox);
-    }
-
-    try {
-      await Hive.openBox<EligibilityResultModel>(_eligibilityBox);
-    } catch (e) {
-      await Hive.deleteBoxFromDisk(_eligibilityBox);
-      await Hive.openBox<EligibilityResultModel>(_eligibilityBox);
+      await Hive.openBox<T>(name);
+    } catch (_) {
+      try {
+        await Hive.deleteBoxFromDisk(name);
+        await Hive.openBox<T>(name);
+      } catch (e) {
+        print('⚠️ Hive: Could not open box "$name": $e');
+      }
     }
   }
 
-  // ── UserProfile CRUD ─────────────────────────────────────
-  static Box<UserProfileModel> get _userProfileBox =>
-      Hive.box<UserProfileModel>(_userBox);
-
-  static Future<void> saveUserProfile(UserProfileModel profile) async {
-    await _userProfileBox.put(profile.id, profile);
+  // ── Safe box accessors (reopen lazily if not open) ──────
+  static Future<Box<UserProfileModel>> _getUserBox() async {
+    if (!Hive.isBoxOpen(_userBox)) await _openBoxSafe<UserProfileModel>(_userBox);
+    return Hive.box<UserProfileModel>(_userBox);
   }
 
-  static UserProfileModel? getUserProfile(String uid) {
-    return _userProfileBox.get(uid);
+  static Future<Box<AcademicDocModel>> _getDocsBox() async {
+    if (!Hive.isBoxOpen(_docsBox)) await _openBoxSafe<AcademicDocModel>(_docsBox);
+    return Hive.box<AcademicDocModel>(_docsBox);
   }
 
-  static Future<void> deleteUserProfile(String uid) async {
-    await _userProfileBox.delete(uid);
+  static Future<Box<EligibilityResultModel>> _getEligibilityBox() async {
+    if (!Hive.isBoxOpen(_eligibilityBox)) await _openBoxSafe<EligibilityResultModel>(_eligibilityBox);
+    return Hive.box<EligibilityResultModel>(_eligibilityBox);
   }
 
-  // ── AcademicDoc CRUD ─────────────────────────────────────
-  static Box<AcademicDocModel> get _academicDocsBox =>
-      Hive.box<AcademicDocModel>(_docsBox);
-
-  static Future<void> saveDoc(AcademicDocModel doc) async {
-    await _academicDocsBox.put(doc.id, doc);
+  // ── Sync accessors (for build methods — return empty if box not open) ──
+  static List<EligibilityResultModel> getAllEligibilityResults() {
+    if (!Hive.isBoxOpen(_eligibilityBox)) return [];
+    return Hive.box<EligibilityResultModel>(_eligibilityBox).values.toList();
   }
 
   static List<AcademicDocModel> getAllDocs() {
-    return _academicDocsBox.values.toList();
+    if (!Hive.isBoxOpen(_docsBox)) return [];
+    return Hive.box<AcademicDocModel>(_docsBox).values.toList();
   }
 
   static AcademicDocModel? getDoc(String id) {
-    return _academicDocsBox.get(id);
+    if (!Hive.isBoxOpen(_docsBox)) return null;
+    return Hive.box<AcademicDocModel>(_docsBox).get(id);
+  }
+
+  static UserProfileModel? getUserProfile(String uid) {
+    if (!Hive.isBoxOpen(_userBox)) return null;
+    return Hive.box<UserProfileModel>(_userBox).get(uid);
+  }
+
+  // ── UserProfile CRUD ─────────────────────────────────────
+  static Future<void> saveUserProfile(UserProfileModel profile) async {
+    final box = await _getUserBox();
+    await box.put(profile.id, profile);
+  }
+
+  static Future<void> deleteUserProfile(String uid) async {
+    final box = await _getUserBox();
+    await box.delete(uid);
+  }
+
+  // ── AcademicDoc CRUD ─────────────────────────────────────
+  static Future<void> saveDoc(AcademicDocModel doc) async {
+    final box = await _getDocsBox();
+    await box.put(doc.id, doc);
   }
 
   static Future<void> deleteDoc(String id) async {
-    await _academicDocsBox.delete(id);
+    final box = await _getDocsBox();
+    await box.delete(id);
   }
 
   // ── EligibilityResult CRUD ───────────────────────────────
-  static Box<EligibilityResultModel> get _eligibilityBox2 =>
-      Hive.box<EligibilityResultModel>(_eligibilityBox);
-
-  static Future<void> saveEligibilityResult(
-      EligibilityResultModel result) async {
-    await _eligibilityBox2.put(result.examId, result);
-  }
-
-  static List<EligibilityResultModel> getAllEligibilityResults() {
-    return _eligibilityBox2.values.toList();
+  static Future<void> saveEligibilityResult(EligibilityResultModel result) async {
+    final box = await _getEligibilityBox();
+    await box.put(result.examId, result);
   }
 
   static Future<void> clearEligibilityResults() async {
-    await _eligibilityBox2.clear();
+    final box = await _getEligibilityBox();
+    await box.clear();
   }
 }
